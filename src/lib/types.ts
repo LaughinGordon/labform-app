@@ -3,6 +3,7 @@ export type SampleType = "air" | "raw" | "cooked";
 export type StorageCondition = "frozen" | "refrigerated" | "ambient" | "other" | "";
 export type SamplingCondition = "original" | "sterile" | "other" | "";
 export type Ampm = "am" | "pm" | "";
+export type ServiceLevel = "regular" | "express" | "doubleExpress" | "emergency" | "";
 
 export interface TestItem {
   on: boolean;
@@ -73,6 +74,9 @@ export interface Job {
   email: string;
   fax: string;
   billTo: string;
+  quotationRequired?: boolean;
+  serviceLevel?: ServiceLevel;
+  separateReportPerSample?: boolean;
   createdAt: string;
   updatedAt: string;
   samples: Sample[];

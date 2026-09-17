@@ -3,11 +3,14 @@ import { CheckRow } from "@/components/ui/checkbox";
 import { Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import {
+  CHEMICAL_TESTS,
   MANUFACTURER_PRESETS,
   MICRO_TESTS,
+  NUTRITION_REGIONS,
   ORIGIN_OPTIONS,
 } from "@/lib/presets";
-import type { Job, Sample, TestItem } from "@/lib/types";
+import type { Job, Sample, TestItem, Tests } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export function SampleFields({
   job,
@@ -22,6 +25,10 @@ export function SampleFields({
 
   const setTest = (key: keyof Sample["tests"], item: TestItem) => {
     onChange({ tests: { ...sample.tests, [key]: item } });
+  };
+
+  const setFlag = (key: (typeof CHEMICAL_TESTS)[number]["key"], on: boolean) => {
+    onChange({ tests: { ...sample.tests, [key]: on } });
   };
 
   const toggleTest = (key: (typeof MICRO_TESTS)[number]["key"], on: boolean, methods: string[]) => {
@@ -42,6 +49,16 @@ export function SampleFields({
     const methods = has ? prev.methods.filter((m) => m !== method) : [...prev.methods, method];
     setTest(key, { ...prev, on: true, methods });
   };
+
+  const toggleRegion = (id: Tests["nutritionRegion"][number]) => {
+    const has = sample.tests.nutritionRegion.includes(id);
+    const nutritionRegion = has
+      ? sample.tests.nutritionRegion.filter((r) => r !== id)
+      : [...sample.tests.nutritionRegion, id];
+    onChange({ tests: { ...sample.tests, nutritionRegion } });
+  };
+
+  const showRegions = sample.tests.nutritionLabeling || sample.tests.panelRequested;
 
   return (
     <div className="flex flex-col gap-6">
@@ -155,20 +172,27 @@ export function SampleFields({
 
       <section className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold">Microbiological tests 微生物測試</h3>
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {MICRO_TESTS.map((row) => {
             const item = sample.tests[row.key];
+            const wide = row.key === "otherMicro";
             return (
-              <div key={row.key} className="rounded-lg border border-border bg-bg-elevated p-3">
+              <div
+                key={row.key}
+                className={cn(
+                  "rounded-lg border border-border bg-bg-elevated p-2",
+                  wide && "col-span-2",
+                )}
+              >
                 <CheckRow
                   checked={item.on}
                   onCheckedChange={(on) => toggleTest(row.key, on, row.methods)}
                 >
                   <span className="font-medium">{row.en}</span>
-                  <span className="ml-2 text-muted">{row.zh}</span>
+                  <span className="ml-1.5 text-muted">{row.zh}</span>
                 </CheckRow>
                 {item.on && row.methods.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1.5 pl-8">
+                  <div className="mt-1.5 flex flex-wrap gap-1 pl-8">
                     {row.methods.map((m) => (
                       <Chip
                         key={m}
@@ -193,6 +217,48 @@ export function SampleFields({
             );
           })}
         </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold">Chemical tests 化學測試</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {CHEMICAL_TESTS.map((row) => (
+            <div key={row.key} className="rounded-lg border border-border bg-bg-elevated p-2">
+              <CheckRow
+                checked={sample.tests[row.key]}
+                onCheckedChange={(on) => setFlag(row.key, on)}
+              >
+                <span className="font-medium">{row.en}</span>
+                <span className="ml-1.5 text-muted">{row.zh}</span>
+              </CheckRow>
+            </div>
+          ))}
+        </div>
+        {showRegions && (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-medium text-muted">Nutrition region 地區</p>
+            <div className="flex flex-wrap gap-1.5">
+              {NUTRITION_REGIONS.map((r) => (
+                <Chip
+                  key={r.id}
+                  active={sample.tests.nutritionRegion.includes(r.id)}
+                  onClick={() => toggleRegion(r.id)}
+                >
+                  {r.en}
+                </Chip>
+              ))}
+            </div>
+          </div>
+        )}
+        <Field label="Other chemical 其他化學">
+          <Input
+            placeholder="Please specify"
+            value={sample.tests.otherChemical}
+            onChange={(e) =>
+              onChange({ tests: { ...sample.tests, otherChemical: e.target.value } })
+            }
+          />
+        </Field>
       </section>
 
       <section className="flex flex-col gap-3">

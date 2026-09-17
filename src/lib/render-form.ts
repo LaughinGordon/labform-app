@@ -1,5 +1,6 @@
 import { formatFormDate } from "./utils";
 import { BOX, FONT_STACK, FORM_PX, INK, METHOD_BOX, TEXT, type TextField } from "./form-layout";
+import { jobQuotationRequired, jobSeparateReport, jobServiceLevel } from "./presets";
 import type { Job, Sample, TestItem } from "./types";
 
 const FORM_SRC = "https://raw.githubusercontent.com/LaughinGordon/labform-assets/main/sgs-l56-page1.png";
@@ -216,9 +217,13 @@ export function paintForm(
     fitAndDraw(ctx, sample.samplingOther, TEXT.samplingOther);
   }
 
-  maybeTick(ctx, true, BOX.quotation);
-  maybeTick(ctx, true, BOX.regular);
-  maybeTick(ctx, true, BOX.separateSample);
+  const service = jobServiceLevel(job);
+  maybeTick(ctx, jobQuotationRequired(job), BOX.quotation);
+  maybeTick(ctx, service === "regular", BOX.regular);
+  maybeTick(ctx, service === "express", BOX.express);
+  maybeTick(ctx, service === "doubleExpress", BOX.doubleExpress);
+  maybeTick(ctx, service === "emergency", BOX.emergency);
+  maybeTick(ctx, jobSeparateReport(job), BOX.separateSample);
 }
 
 export async function renderSampleCanvas(job: Job, sample: Sample): Promise<HTMLCanvasElement> {

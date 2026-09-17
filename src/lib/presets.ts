@@ -4,6 +4,7 @@ import type {
   Job,
   Sample,
   SampleType,
+  ServiceLevel,
   TestItem,
   Tests,
 } from "./types";
@@ -76,6 +77,25 @@ export const MANUFACTURER_PRESETS: Record<SampleType, string[]> = {
   raw: ["JBS", "Cargill", "Beipiao City Hong Fa Staff Co. Ltd"],
   cooked: ["MIHK", "YLPC"],
 };
+
+export const SERVICE_LEVELS: Array<{ id: Exclude<ServiceLevel, "">; en: string; zh: string }> = [
+  { id: "regular", en: "Regular", zh: "標準" },
+  { id: "express", en: "Express", zh: "加急" },
+  { id: "doubleExpress", en: "Double Express", zh: "特急" },
+  { id: "emergency", en: "Emergency", zh: "緊急" },
+];
+
+export function jobQuotationRequired(job: Job) {
+  return job.quotationRequired !== false;
+}
+
+export function jobServiceLevel(job: Job): ServiceLevel {
+  return job.serviceLevel ?? "regular";
+}
+
+export function jobSeparateReport(job: Job) {
+  return job.separateReportPerSample !== false;
+}
 
 function testItem(on = false, methods: string[] = []): TestItem {
   return { on, methods: on ? methods : [], specify: "" };
@@ -158,6 +178,9 @@ export function createJob(type: SampleType): Job {
     address: company.address,
     billingAddress: company.billingAddress,
     ...DEFAULT_CONTACT,
+    quotationRequired: true,
+    serviceLevel: "regular",
+    separateReportPerSample: true,
     createdAt: now,
     updatedAt: now,
     samples: [createSample(type, 1)],
@@ -187,11 +210,45 @@ export const MICRO_TESTS: Array<{
   { key: "ecoli", en: "E.Coli", zh: "大腸埃希氏菌", methods: ["AOAC", "FDA", "DoE", "GB", "Others"] },
   { key: "coliform", en: "Coliform", zh: "大腸菌群", methods: ["AOAC", "FDA", "DoE", "GB", "Others"] },
   { key: "salmonella", en: "Salmonella", zh: "沙門氏菌", methods: ["AOAC", "FDA", "GB", "Others"] },
-  { key: "staph", en: "Staphylococcus Aureus", zh: "金黃色葡萄球菌", methods: ["AOAC", "FDA", "GB", "Others"] },
+  { key: "staph", en: "Staph. Aureus", zh: "金黃色葡萄球菌", methods: ["AOAC", "FDA", "GB", "Others"] },
   { key: "yeast", en: "Yeast & Mould", zh: "霉菌及酵母菌", methods: ["AOAC", "FDA", "GB", "Others"] },
-  { key: "clostridium", en: "Clostridium Perfringens", zh: "產氣莢膜梭狀芽孢桿菌", methods: ["FDA", "GB", "Others"] },
+  { key: "clostridium", en: "C. Perfringens", zh: "產氣莢膜梭菌", methods: ["FDA", "GB", "Others"] },
   { key: "bacillus", en: "Bacillus Cereus", zh: "蠟狀芽孢桿菌", methods: ["DAS", "ISO", "Others"] },
-  { key: "vibrio", en: "Vibrio / Parahaemolyticus", zh: "霍亂弧菌 / 副溶血性弧菌", methods: ["FDA", "Others"] },
-  { key: "listeria", en: "Listeria Monocytogenes", zh: "產單核細胞李斯特菌", methods: ["FDA", "GB", "Others"] },
+  { key: "vibrio", en: "Vibrio", zh: "霍亂 / 副溶血弧菌", methods: ["FDA", "Others"] },
+  { key: "listeria", en: "Listeria Mono.", zh: "李斯特菌", methods: ["FDA", "GB", "Others"] },
   { key: "otherMicro", en: "Other micro", zh: "其他微生物", methods: [] },
+];
+
+export const CHEMICAL_TESTS: Array<{
+  key: keyof Pick<
+    Tests,
+    | "nutritionLabeling"
+    | "panelRequested"
+    | "individualNutrition"
+    | "heavyMetal"
+    | "preservative"
+    | "colour"
+    | "pesticide"
+    | "melamine"
+    | "aflatoxin"
+  >;
+  en: string;
+  zh: string;
+}> = [
+  { key: "nutritionLabeling", en: "Nutrition Labeling", zh: "營養標籤" },
+  { key: "panelRequested", en: "Panel requested", zh: "營養標籤組合" },
+  { key: "individualNutrition", en: "Individual items", zh: "個別營養素" },
+  { key: "heavyMetal", en: "Heavy Metal", zh: "重金屬" },
+  { key: "preservative", en: "Preservative", zh: "防腐劑" },
+  { key: "colour", en: "Colouring Matter", zh: "色素" },
+  { key: "pesticide", en: "Pesticide Residue", zh: "除害劑殘餘" },
+  { key: "melamine", en: "Melamine", zh: "三聚氰胺" },
+  { key: "aflatoxin", en: "Aflatoxin", zh: "黃曲霉毒素" },
+];
+
+export const NUTRITION_REGIONS: Array<{ id: "hk" | "us" | "china" | "other"; en: string }> = [
+  { id: "hk", en: "HK" },
+  { id: "us", en: "US" },
+  { id: "china", en: "China" },
+  { id: "other", en: "Other" },
 ];

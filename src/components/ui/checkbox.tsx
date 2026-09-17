@@ -44,7 +44,7 @@ export function CheckRow({
         disabled={disabled}
         onCheckedChange={(v) => onCheckedChange(v === true)}
       />
-      <span>{children}</span>
+      <span className="min-w-0 leading-snug">{children}</span>
     </label>
   );
 }

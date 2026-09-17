@@ -6,7 +6,6 @@ import {
   Plus,
   Trash2,
   Building2,
-  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FormPreview } from "@/components/form-preview";
@@ -14,12 +13,20 @@ import { SampleFields } from "@/components/sample-fields";
 import { Chip } from "@/components/chip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CheckRow } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
-import { COMPANIES, SAMPLE_TYPE_META } from "@/lib/presets";
+import {
+  COMPANIES,
+  SAMPLE_TYPE_META,
+  SERVICE_LEVELS,
+  jobQuotationRequired,
+  jobSeparateReport,
+  jobServiceLevel,
+} from "@/lib/presets";
 import { useLabStore } from "@/lib/store";
 import { downloadBlob, exportJobPdf, jobFileStem } from "@/lib/export-pdf";
-import type { Job } from "@/lib/types";
+import type { Job, ServiceLevel } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function JobEditor({ job }: { job: Job }) {
@@ -35,6 +42,7 @@ export function JobEditor({ job }: { job: Job }) {
   );
   const meta = SAMPLE_TYPE_META[job.sampleType];
   const isCustom = job.companyId === "custom" || !COMPANIES.some((c) => c.id === job.companyId);
+  const service = jobServiceLevel(job);
 
   const onExport = async () => {
     setExporting(true);
@@ -231,15 +239,39 @@ export function JobEditor({ job }: { job: Job }) {
               onChange={(patch) => updateSample(job.id, sample.id, patch)}
             />
 
-            <section className="rounded-lg border border-border bg-bg-elevated p-3">
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted">
-                <Lock className="size-3.5" /> Always printed 必然預設
-              </p>
-              <ul className="space-y-1 text-sm">
-                <li>Quotation required 要求報價</li>
-                <li>Regular service 標準</li>
-                <li>Separate report for each sample 獨立樣板報告</li>
-              </ul>
+            <section className="flex flex-col gap-3 rounded-lg border border-border bg-bg-elevated p-3">
+              <h3 className="text-sm font-semibold">Always printed 必然預設</h3>
+              <p className="text-xs text-muted">Defaults stay on. Untick to leave the box blank.</p>
+              <CheckRow
+                checked={jobQuotationRequired(job)}
+                onCheckedChange={(on) => update(job.id, { quotationRequired: on })}
+              >
+                Quotation required 要求報價
+              </CheckRow>
+              <div className="flex flex-col gap-1.5">
+                <p className="text-xs font-medium text-muted">Service 服務</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {SERVICE_LEVELS.map((s) => (
+                    <Chip
+                      key={s.id}
+                      active={service === s.id}
+                      onClick={() =>
+                        update(job.id, {
+                          serviceLevel: (service === s.id ? "" : s.id) as ServiceLevel,
+                        })
+                      }
+                    >
+                      {s.en} {s.zh}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+              <CheckRow
+                checked={jobSeparateReport(job)}
+                onCheckedChange={(on) => update(job.id, { separateReportPerSample: on })}
+              >
+                Separate report per sample 獨立樣板報告
+              </CheckRow>
             </section>
           </div>
         </aside>

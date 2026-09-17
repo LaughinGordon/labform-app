@@ -16,14 +16,14 @@ export type TextField = {
 };
 
 export const TEXT: Record<string, TextField> = {
-  applicant: { x: 510, y: 344, w: 1020, size: 17 },
-  address: { x: 360, y: 380, w: 1160, size: 14, shrink: true },
-  tel: { x: 310, y: 412, w: 420, size: 16 },
-  email: { x: 1020, y: 412, w: 500, size: 15, shrink: true },
-  contact: { x: 430, y: 442, w: 420, size: 16 },
-  fax: { x: 1020, y: 442, w: 500, size: 16 },
-  billTo: { x: 400, y: 474, w: 1120, size: 16 },
-  billing: { x: 520, y: 506, w: 1000, size: 13, shrink: true },
+  applicant: { x: 510, y: 378, w: 1020, size: 17 },
+  address: { x: 430, y: 410, w: 1090, size: 14, shrink: true },
+  tel: { x: 300, y: 443, w: 450, size: 16 },
+  email: { x: 1080, y: 443, w: 440, size: 15, shrink: true },
+  contact: { x: 430, y: 475, w: 420, size: 16 },
+  fax: { x: 1080, y: 475, w: 440, size: 16 },
+  billTo: { x: 420, y: 507, w: 1100, size: 16 },
+  billing: { x: 500, y: 538, w: 1020, size: 13, shrink: true },
   product: { x: 455, y: 608, w: 780, size: 18, h: 52, shrink: true },
   qty: { x: 1472, y: 610, w: 90, size: 18 },
   additional: { x: 900, y: 678, w: 630, size: 13, shrink: true },
