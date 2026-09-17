@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft JhengHei",
+    "WenQuanYi Zen Hei", "Noto Sans CJK SC", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #f4f1ea;
+  --color-bg-elevated: #fcfbf8;
+  --color-surface: #fffdf9;
+  --color-fg: #1c1917;
+  --color-muted: #78716c;
+  --color-subtle: #a8a29e;
+  --color-primary: #1f4a3a;
+  --color-primary-fg: #f4f1ea;
+  --color-primary-hover: #17382c;
+  --color-accent: #9a4f2c;
+  --color-accent-fg: #fffdf9;
+  --color-border: #e7e0d4;
+  --color-border-strong: #d6cdc0;
+  --color-ring: #1f4a3a;
+  --color-danger: #9f1239;
+  --color-air: #3d5a73;
+  --color-raw: #1f4a3a;
+  --color-cooked: #9a4f2c;
+  --color-ink: #1b365d;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+
+  --shadow-border: 0px 0px 0px 1px rgba(28, 25, 23, 0.06),
+    0px 1px 2px -1px rgba(28, 25, 23, 0.06), 0px 2px 4px 0px rgba(28, 25, 23, 0.04);
+  --shadow-paper: 0px 0px 0px 1px rgba(28, 25, 23, 0.05),
+    0px 8px 24px -12px rgba(28, 25, 23, 0.18);
+
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary) 22%, white);
+    color: var(--color-fg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.form-sheet {
+  aspect-ratio: 210 / 297;
+}
+
+.paper-shadow {
+  box-shadow: var(--shadow-paper);
+}
