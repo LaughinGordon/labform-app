@@ -1,9 +1,9 @@
 import { formatFormDate } from "./utils";
 import { BOX, FONT_STACK, FORM_PX, INK, METHOD_BOX, TEXT, type TextField } from "./form-layout";
-import { jobQuotationRequired, jobSeparateReport, jobServiceLevel, nutritionSpecifyText } from "./presets";
+import { jobFontScale, jobQuotationRequired, jobSeparateReport, jobServiceLevel, nutritionSpecifyText } from "./presets";
 import type { Job, Sample, TestItem } from "./types";
 
-const FORM_SRC = "https://raw.githubusercontent.com/LaughinGordon/labform-assets/main/sgs-l56-page1.png";
+const FORM_SRC = "/forms/sgs-l56-page1.png";
 
 let cachedImage: HTMLImageElement | null = null;
 let cachedPromise: Promise<HTMLImageElement> | null = null;
@@ -13,7 +13,6 @@ export function loadFormImage(): Promise<HTMLImageElement> {
   if (cachedPromise) return cachedPromise;
   cachedPromise = new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "anonymous";
     img.onload = () => {
       cachedImage = img;
       resolve(img);
@@ -61,13 +60,14 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
   return lines;
 }
 
-function fitAndDraw(ctx: CanvasRenderingContext2D, text: string, field: TextField) {
+function fitAndDraw(ctx: CanvasRenderingContext2D, text: string, field: TextField, scale = 1) {
   const value = text.trim();
   if (!value) return;
   const maxW = field.w;
-  const maxH = field.h ?? field.size * 1.35;
-  const minSize = field.shrink ? Math.max(8, field.size * 0.45) : field.size;
-  let size = field.size;
+  const maxH = field.h ?? field.size * 1.35 * scale;
+  const base = field.size * scale;
+  const minSize = field.shrink ? Math.max(8, base * 0.45) : base;
+  let size = base;
   let lines: string[] = [value];
 
   while (size >= minSize) {
@@ -87,7 +87,7 @@ function fitAndDraw(ctx: CanvasRenderingContext2D, text: string, field: TextFiel
   ctx.textBaseline = "middle";
   const lineH = size * 1.18;
   const startY = field.y - ((lines.length - 1) * lineH) / 2;
-  const x = field.align === "center" ? field.x : field.x;
+  const x = field.align === "center" ? field.x + field.w / 2 : field.x;
   lines.forEach((line, i) => {
     ctx.fillText(line, x, startY + i * lineH);
   });
@@ -135,30 +135,33 @@ export function paintForm(
   ctx.drawImage(image, 0, 0, FORM_PX.w, FORM_PX.h);
   ctx.fillStyle = INK;
 
-  fitAndDraw(ctx, job.companyName, TEXT.applicant);
-  fitAndDraw(ctx, job.address, TEXT.address);
-  fitAndDraw(ctx, job.tel, TEXT.tel);
-  fitAndDraw(ctx, job.email, TEXT.email);
-  fitAndDraw(ctx, job.contactPerson, TEXT.contact);
-  fitAndDraw(ctx, job.fax, TEXT.fax);
-  fitAndDraw(ctx, job.billTo, TEXT.billTo);
-  fitAndDraw(ctx, job.billingAddress, TEXT.billing);
+  const scale = jobFontScale(job);
+  const draw = (text: string, field: (typeof TEXT)[string]) => fitAndDraw(ctx, text, field, scale);
 
-  fitAndDraw(ctx, sample.productDescription, TEXT.product);
-  fitAndDraw(ctx, sample.sampleQuantity, TEXT.qty);
-  fitAndDraw(ctx, sample.additionalInfo, TEXT.additional);
-  fitAndDraw(ctx, sample.manufacturer, TEXT.manufacturer);
-  fitAndDraw(ctx, sample.styleItemNo, TEXT.style);
-  fitAndDraw(ctx, sample.countryOfOrigin, TEXT.origin);
-  fitAndDraw(ctx, sample.poLotNo, TEXT.po);
-  fitAndDraw(ctx, sample.countryOfDestination, TEXT.dest);
-  fitAndDraw(ctx, sample.buyerAgent, TEXT.buyer);
-  fitAndDraw(ctx, sample.othersReference, TEXT.others);
-  fitAndDraw(ctx, formatFormDate(sample.productionDate), TEXT.prodDate);
+  draw(job.companyName, TEXT.applicant);
+  draw(job.address, TEXT.address);
+  draw(job.tel, TEXT.tel);
+  draw(job.email, TEXT.email);
+  draw(job.contactPerson, TEXT.contact);
+  draw(job.fax, TEXT.fax);
+  draw(job.billTo, TEXT.billTo);
+  draw(job.billingAddress, TEXT.billing);
+
+  draw(sample.productDescription, TEXT.product);
+  draw(sample.sampleQuantity, TEXT.qty);
+  draw(sample.additionalInfo, TEXT.additional);
+  draw(sample.manufacturer, TEXT.manufacturer);
+  draw(sample.styleItemNo, TEXT.style);
+  draw(sample.countryOfOrigin, TEXT.origin);
+  draw(sample.poLotNo, TEXT.po);
+  draw(sample.countryOfDestination, TEXT.dest);
+  draw(sample.buyerAgent, TEXT.buyer);
+  draw(sample.othersReference, TEXT.others);
+  draw(formatFormDate(sample.productionDate), TEXT.prodDate);
 
   const t = sample.tests;
   maybeTick(ctx, t.shelfLife, BOX.shelfLife);
-  if (t.shelfLife) fitAndDraw(ctx, formatFormDate(t.shelfLifeDate), TEXT.shelfLifeDate);
+  if (t.shelfLife) draw(formatFormDate(t.shelfLifeDate), TEXT.shelfLifeDate);
 
   maybeTick(ctx, t.tpc.on, BOX.tpc);
   methodsOf(t.tpc, "tpc", ctx);
@@ -181,7 +184,7 @@ export function paintForm(
   maybeTick(ctx, t.listeria.on, BOX.listeria);
   methodsOf(t.listeria, "listeria", ctx);
   maybeTick(ctx, t.otherMicro.on, BOX.otherMicro);
-  if (t.otherMicro.on) fitAndDraw(ctx, t.otherMicro.specify, TEXT.otherMicroSpecify);
+  if (t.otherMicro.on) draw(t.otherMicro.specify, TEXT.otherMicroSpecify);
 
   maybeTick(ctx, t.nutritionLabeling, BOX.nutritionLabeling);
   maybeTick(ctx, t.panelRequested, BOX.panelRequested);
@@ -190,41 +193,41 @@ export function paintForm(
   maybeTick(ctx, t.nutritionRegion.includes("china"), BOX.regionChina);
   maybeTick(ctx, t.nutritionRegion.includes("other"), BOX.regionOther);
   if (t.nutritionRegion.includes("other")) {
-    fitAndDraw(ctx, t.regionOtherSpecify ?? "", TEXT.regionOtherSpecify);
+    draw(t.regionOtherSpecify ?? "", TEXT.regionOtherSpecify);
   }
   const nutritionOn = t.individualNutrition || (t.nutritionItems?.length ?? 0) > 0 || Boolean(t.individualOther?.trim());
   maybeTick(ctx, nutritionOn, BOX.individualNutrition);
-  fitAndDraw(ctx, nutritionSpecifyText(t), TEXT.individualSpecify);
+  draw(nutritionSpecifyText(t), TEXT.individualSpecify);
   maybeTick(ctx, t.heavyMetal, BOX.heavyMetal);
-  if (t.heavyMetal) fitAndDraw(ctx, t.heavyMetalSpecify ?? "", TEXT.heavyMetalSpecify);
+  if (t.heavyMetal) draw(t.heavyMetalSpecify ?? "", TEXT.heavyMetalSpecify);
   maybeTick(ctx, t.preservative, BOX.preservative);
-  if (t.preservative) fitAndDraw(ctx, t.preservativeSpecify ?? "", TEXT.preservativeSpecify);
+  if (t.preservative) draw(t.preservativeSpecify ?? "", TEXT.preservativeSpecify);
   maybeTick(ctx, t.colour, BOX.colour);
-  if (t.colour) fitAndDraw(ctx, t.colourSpecify ?? "", TEXT.colourSpecify);
+  if (t.colour) draw(t.colourSpecify ?? "", TEXT.colourSpecify);
   maybeTick(ctx, t.pesticide, BOX.pesticide);
-  if (t.pesticide) fitAndDraw(ctx, t.pesticideSpecify ?? "", TEXT.pesticideSpecify);
+  if (t.pesticide) draw(t.pesticideSpecify ?? "", TEXT.pesticideSpecify);
   maybeTick(ctx, t.melamine, BOX.melamine);
   maybeTick(ctx, t.aflatoxin, BOX.aflatoxin);
   maybeTick(ctx, Boolean((t.otherChemical ?? "").trim()), BOX.otherChemical);
-  fitAndDraw(ctx, t.otherChemical, TEXT.otherChemical);
+  draw(t.otherChemical, TEXT.otherChemical);
 
   maybeTick(ctx, sample.storage === "frozen", BOX.frozen);
   maybeTick(ctx, sample.storage === "refrigerated", BOX.refrigerated);
   maybeTick(ctx, sample.storage === "ambient", BOX.ambient);
   maybeTick(ctx, sample.storage === "other", BOX.storageOther);
-  if (sample.storage === "other") fitAndDraw(ctx, sample.storageOther, TEXT.storageOther);
+  if (sample.storage === "other") draw(sample.storageOther, TEXT.storageOther);
 
-  fitAndDraw(ctx, formatFormDate(sample.clientSamplingDate), TEXT.clientDate);
-  fitAndDraw(ctx, formatFormDate(sample.collectionDate), TEXT.sgsDate);
+  draw(formatFormDate(sample.clientSamplingDate), TEXT.clientDate);
+  draw(formatFormDate(sample.collectionDate), TEXT.sgsDate);
   if (sample.collectionAmpm) {
-    fitAndDraw(ctx, sample.collectionAmpm, TEXT.ampm);
+    draw(sample.collectionAmpm, TEXT.ampm);
   }
 
   maybeTick(ctx, sample.samplingCondition === "original", BOX.original);
   maybeTick(ctx, sample.samplingCondition === "sterile", BOX.sterile);
   maybeTick(ctx, sample.samplingCondition === "other", BOX.samplingOther);
   if (sample.samplingCondition === "other") {
-    fitAndDraw(ctx, sample.samplingOther, TEXT.samplingOther);
+    draw(sample.samplingOther, TEXT.samplingOther);
   }
 
   const service = jobServiceLevel(job);

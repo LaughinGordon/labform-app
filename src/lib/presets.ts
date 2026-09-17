@@ -95,6 +95,11 @@ export function jobServiceLevel(job: Job): ServiceLevel {
   return job.serviceLevel ?? "regular";
 }
 
+export function jobFontScale(job: Job) {
+  const n = job.fontScale ?? 1;
+  return Math.min(1.5, Math.max(0.7, n));
+}
+
 export function jobSeparateReport(job: Job) {
   return job.separateReportPerSample !== false;
 }
@@ -190,6 +195,7 @@ export function createJob(type: SampleType): Job {
     quotationRequired: true,
     serviceLevel: "regular",
     separateReportPerSample: true,
+    fontScale: 1,
     createdAt: now,
     updatedAt: now,
     samples: [createSample(type, 1)],

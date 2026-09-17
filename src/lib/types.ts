@@ -94,6 +94,7 @@ export interface Job {
   quotationRequired?: boolean;
   serviceLevel?: ServiceLevel;
   separateReportPerSample?: boolean;
+  fontScale?: number;
   createdAt: string;
   updatedAt: string;
   samples: Sample[];

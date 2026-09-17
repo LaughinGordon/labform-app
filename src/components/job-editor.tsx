@@ -21,6 +21,7 @@ import {
   COMPANIES,
   SAMPLE_TYPE_META,
   SERVICE_LEVELS,
+  jobFontScale,
   jobQuotationRequired,
   jobSeparateReport,
   jobServiceLevel,
@@ -44,6 +45,12 @@ export function JobEditor({ job }: { job: Job }) {
   const meta = SAMPLE_TYPE_META[job.sampleType];
   const isCustom = job.companyId === "custom" || !COMPANIES.some((c) => c.id === job.companyId);
   const service = jobServiceLevel(job);
+  const fontScale = jobFontScale(job);
+
+  const bumpFont = (delta: number) => {
+    const next = Math.round((fontScale + delta) * 10) / 10;
+    update(job.id, { fontScale: Math.min(1.5, Math.max(0.7, next)) });
+  };
 
   const onExport = async () => {
     setExporting(true);
@@ -63,27 +70,52 @@ export function JobEditor({ job }: { job: Job }) {
   return (
     <div className="flex min-h-svh flex-col bg-bg">
       <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2">
           <Button variant="ghost" size="icon" asChild>
             <a href="/" aria-label="Back">
               <ArrowLeft />
             </a>
           </Button>
-          <Logo className="size-8" />
+          <Logo className="size-7" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <Badge tone={job.sampleType}>
                 {meta.en} · {meta.zh}
               </Badge>
-              <span className="truncate text-sm text-muted">
+              <span className="truncate text-xs text-muted">
                 {job.samples.length} sample{job.samples.length > 1 ? "s" : ""}
               </span>
             </div>
             <p className="truncate text-sm font-medium">{job.companyName}</p>
           </div>
+          <div className="flex items-center gap-0.5 rounded-md border border-border bg-surface px-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-1.5"
+              onClick={() => bumpFont(-0.1)}
+              disabled={fontScale <= 0.7}
+              aria-label="Smaller form text"
+            >
+              A−
+            </Button>
+            <span className="w-8 text-center text-[11px] tabular-nums text-muted">
+              {Math.round(fontScale * 100)}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-1.5"
+              onClick={() => bumpFont(0.1)}
+              disabled={fontScale >= 1.5}
+              aria-label="Larger form text"
+            >
+              A+
+            </Button>
+          </div>
           <Button onClick={onExport} disabled={exporting}>
             <Download />
-            {exporting ? "Exporting…" : "Export PDF"}
+            {exporting ? "Exporting…" : "PDF"}
           </Button>
         </div>
       </header>
@@ -113,12 +145,12 @@ export function JobEditor({ job }: { job: Job }) {
             </button>
           </div>
 
-          <div className={cn("flex flex-col gap-6 p-4", tab === "preview" && "hidden lg:flex")}>
-            <section className="flex flex-col gap-3">
-              <h3 className="flex items-center gap-2 text-sm font-semibold">
-                <Building2 className="size-4" /> Applicant 申請公司
+          <div className={cn("flex flex-col gap-4 p-3", tab === "preview" && "hidden lg:flex")}>
+            <section className="flex flex-col gap-2">
+              <h3 className="flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase text-muted">
+                <Building2 className="size-3.5" /> Applicant 申請公司
               </h3>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1">
                 {COMPANIES.map((c) => (
                   <Chip
                     key={c.id}
@@ -154,7 +186,7 @@ export function JobEditor({ job }: { job: Job }) {
                   onChange={(e) => update(job.id, { billingAddress: e.target.value })}
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <Field label="Contact 聯絡人">
                   <Input
                     value={job.contactPerson}
@@ -179,9 +211,9 @@ export function JobEditor({ job }: { job: Job }) {
               </Field>
             </section>
 
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Samples 樣品</h3>
+                <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">Samples 樣品</h3>
                 <Button size="sm" variant="secondary" onClick={() => addSample(job.id)}>
                   <Plus /> Add
                 </Button>
@@ -191,7 +223,7 @@ export function JobEditor({ job }: { job: Job }) {
                   <div
                     key={s.id}
                     className={cn(
-                      "flex items-center gap-1 rounded-lg border px-2 py-1",
+                      "flex items-center gap-1 rounded-md border px-1.5 py-0.5",
                       s.id === sample.id
                         ? "border-primary bg-primary/5"
                         : "border-border bg-surface",
@@ -199,7 +231,7 @@ export function JobEditor({ job }: { job: Job }) {
                   >
                     <button
                       type="button"
-                      className="min-h-10 min-w-0 flex-1 truncate px-1 text-left text-sm"
+                      className="min-h-8 min-w-0 flex-1 truncate px-1 text-left text-sm"
                       onClick={() => setActiveId(s.id)}
                     >
                       <span className="text-muted">{i + 1}.</span>{" "}
@@ -208,7 +240,7 @@ export function JobEditor({ job }: { job: Job }) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-9"
+                      className="size-8"
                       aria-label="Duplicate sample"
                       onClick={() => duplicateSample(job.id, s.id)}
                     >
@@ -217,7 +249,7 @@ export function JobEditor({ job }: { job: Job }) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-9"
+                      className="size-8"
                       aria-label="Remove sample"
                       disabled={job.samples.length <= 1}
                       onClick={() => {
@@ -241,9 +273,9 @@ export function JobEditor({ job }: { job: Job }) {
               onChange={(patch) => updateSample(job.id, sample.id, patch)}
             />
 
-            <section className="flex flex-col gap-3 rounded-lg border border-border bg-bg-elevated p-3">
-              <h3 className="text-sm font-semibold">Service Required 所需服務</h3>
-              <p className="text-xs text-muted">Defaults stay on. Untick to leave the box blank.</p>
+            <section className="flex flex-col gap-2 rounded-md border border-border bg-bg-elevated p-2.5">
+              <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">Service Required 所需服務</h3>
+              <p className="text-[11px] text-muted">Defaults stay on. Untick to leave the box blank.</p>
               <CheckRow
                 checked={jobQuotationRequired(job)}
                 onCheckedChange={(on) => update(job.id, { quotationRequired: on })}
@@ -252,7 +284,7 @@ export function JobEditor({ job }: { job: Job }) {
               </CheckRow>
               <div className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-muted">Service 服務</p>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1">
                   {SERVICE_LEVELS.map((s) => (
                     <Chip
                       key={s.id}
@@ -280,16 +312,16 @@ export function JobEditor({ job }: { job: Job }) {
 
         <section
           className={cn(
-            "bg-bg p-4 lg:block lg:p-8",
+            "bg-bg p-3 lg:block lg:p-4",
             tab === "edit" && "hidden lg:block",
           )}
         >
           <div className="mx-auto max-w-3xl">
-            <div className="mb-4 flex items-baseline justify-between gap-3">
-              <h2 className="text-sm font-medium text-muted">
-                Form preview · {sample.productDescription || sample.label}
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              <h2 className="truncate text-xs font-medium text-muted">
+                Preview · {sample.productDescription || sample.label}
               </h2>
-              <p className="text-xs text-subtle">SGS AFL L56</p>
+              <p className="text-[11px] text-subtle">SGS AFL L56 · 字體 {Math.round(fontScale * 100)}%</p>
             </div>
             <FormPreview job={job} sample={sample} />
           </div>

@@ -29,7 +29,7 @@ function Home() {
 
   return (
     <main className="min-h-svh bg-bg">
-      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-10 sm:py-14">
+      <div className="mx-auto flex max-w-5xl flex-col gap-7 px-4 py-8 sm:py-10">
         <header className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <Logo className="size-11" />
@@ -37,7 +37,7 @@ function Home() {
               <p className="text-xs font-medium tracking-[0.18em] text-muted uppercase">
                 SGS AFL L56
               </p>
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">LabForm</h1>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">LabForm</h1>
             </div>
           </div>
           <p className="max-w-xl text-pretty text-muted">
@@ -53,7 +53,7 @@ function Home() {
                 key={type}
                 type="button"
                 onClick={() => start(type)}
-                className="group flex flex-col items-start gap-4 rounded-xl bg-surface p-5 text-left paper-shadow transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5"
+                className="group flex flex-col items-start gap-3 rounded-xl bg-surface p-4 text-left paper-shadow transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5"
               >
                 <span className="flex size-11 items-center justify-center rounded-lg bg-bg text-primary">
                   <Icon className="size-5" />

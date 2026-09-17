@@ -82,24 +82,22 @@ export function SampleFields({
   const showRegions = sample.tests.nutritionLabeling || sample.tests.panelRequested;
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Product 產品</h3>
+    <div className="flex flex-col gap-4">
+      <section className="flex flex-col gap-2">
+        <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">Product 產品</h3>
         <Field label="Product description 產品敘述">
           <Textarea
-            rows={3}
+            rows={2}
             value={sample.productDescription}
             placeholder="e.g. 火鍋牛肉生產及包裝區 / Swift 918G (Shipment 588) US Beef"
             onChange={(e) => onChange({ productDescription: e.target.value })}
           />
         </Field>
-        <p className="text-xs text-muted">
-          Long descriptions shrink automatically so they stay inside the printed box.
-        </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Field label="Sample quantity 樣品數量">
             <Input
               value={sample.sampleQuantity}
+              placeholder="e.g. 1"
               onChange={(e) => onChange({ sampleQuantity: e.target.value })}
             />
           </Field>
@@ -122,7 +120,7 @@ export function SampleFields({
             onChange={(e) => onChange({ manufacturer: e.target.value })}
           />
         </Field>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           {makers.map((m) => (
             <Chip
               key={m}
@@ -133,7 +131,7 @@ export function SampleFields({
             </Chip>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Field label="Style / Item No. 款號">
             <Input
               value={sample.styleItemNo}
@@ -150,7 +148,7 @@ export function SampleFields({
             onChange={(e) => onChange({ countryOfOrigin: e.target.value })}
           />
         </Field>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           {ORIGIN_OPTIONS.map((o) => (
             <Chip
               key={o}
@@ -161,7 +159,7 @@ export function SampleFields({
             </Chip>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Field label="Country of destination 目的地">
             <Input
               value={sample.countryOfDestination}
@@ -175,25 +173,27 @@ export function SampleFields({
             />
           </Field>
         </div>
-        <Field label="Others / Reference No. 參考編號">
-          <Input
-            value={sample.othersReference}
-            placeholder="Sample Date / Health Cert."
-            onChange={(e) => onChange({ othersReference: e.target.value })}
-          />
-        </Field>
-        <Field label="Production date 生產日期">
-          <Input
-            value={sample.productionDate}
-            placeholder="e.g. 17/9/2026"
-            onChange={(e) => onChange({ productionDate: e.target.value })}
-          />
-        </Field>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="Others / Reference No. 參考編號">
+            <Input
+              value={sample.othersReference}
+              placeholder="Sample Date / Health Cert."
+              onChange={(e) => onChange({ othersReference: e.target.value })}
+            />
+          </Field>
+          <Field label="Production date 生產日期">
+            <Input
+              value={sample.productionDate}
+              placeholder="e.g. 17/9/2026"
+              onChange={(e) => onChange({ productionDate: e.target.value })}
+            />
+          </Field>
+        </div>
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Microbiological tests 微生物測試</h3>
-        <div className="grid grid-cols-2 gap-2">
+      <section className="flex flex-col gap-2">
+        <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">Microbiological tests 微生物測試</h3>
+        <div className="grid grid-cols-2 gap-1.5">
           {MICRO_TESTS.map((row) => {
             const item = sample.tests[row.key];
             const wide = row.key === "otherMicro";
@@ -201,7 +201,7 @@ export function SampleFields({
               <div
                 key={row.key}
                 className={cn(
-                  "rounded-lg border border-border bg-bg-elevated p-2",
+                  "rounded-md border border-border bg-bg-elevated px-1.5 py-1",
                   wide && "col-span-2",
                 )}
               >
@@ -240,14 +240,14 @@ export function SampleFields({
         </div>
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Chemical tests 化學測試</h3>
-        <div className="grid grid-cols-2 gap-2">
+      <section className="flex flex-col gap-2">
+        <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">Chemical tests 化學測試</h3>
+        <div className="grid grid-cols-2 gap-1.5">
           {CHEMICAL_TESTS.map((row) => (
             <div
               key={row.key}
               className={cn(
-                "rounded-lg border border-border bg-bg-elevated p-2",
+                "rounded-md border border-border bg-bg-elevated px-1.5 py-1",
                 row.key === "individualNutrition" && "col-span-2",
               )}
             >
@@ -333,8 +333,8 @@ export function SampleFields({
         </Field>
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Sampling 收取樣品</h3>
+      <section className="flex flex-col gap-2">
+        <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">Sampling 收取樣品</h3>
         <Field label="Original storage 儲存狀況">
           <NativeSelect
             value={sample.storage}
@@ -356,7 +356,7 @@ export function SampleFields({
             />
           </Field>
         )}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Field label="Client sampling date">
             <Input
               type="date"
