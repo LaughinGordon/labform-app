@@ -240,7 +240,7 @@ export function JobEditor({ job }: { job: Job }) {
             />
 
             <section className="flex flex-col gap-3 rounded-lg border border-border bg-bg-elevated p-3">
-              <h3 className="text-sm font-semibold">Always printed 必然預設</h3>
+              <h3 className="text-sm font-semibold">Service Required 所需服務</h3>
               <p className="text-xs text-muted">Defaults stay on. Untick to leave the box blank.</p>
               <CheckRow
                 checked={jobQuotationRequired(job)}

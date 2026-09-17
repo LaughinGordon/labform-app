@@ -1,6 +1,6 @@
 import { formatFormDate } from "./utils";
 import { BOX, FONT_STACK, FORM_PX, INK, METHOD_BOX, TEXT, type TextField } from "./form-layout";
-import { jobQuotationRequired, jobSeparateReport, jobServiceLevel } from "./presets";
+import { jobQuotationRequired, jobSeparateReport, jobServiceLevel, nutritionSpecifyText } from "./presets";
 import type { Job, Sample, TestItem } from "./types";
 
 const FORM_SRC = "https://raw.githubusercontent.com/LaughinGordon/labform-assets/main/sgs-l56-page1.png";
@@ -189,13 +189,23 @@ export function paintForm(
   maybeTick(ctx, t.nutritionRegion.includes("us"), BOX.regionUs);
   maybeTick(ctx, t.nutritionRegion.includes("china"), BOX.regionChina);
   maybeTick(ctx, t.nutritionRegion.includes("other"), BOX.regionOther);
-  maybeTick(ctx, t.individualNutrition, BOX.individualNutrition);
+  if (t.nutritionRegion.includes("other")) {
+    fitAndDraw(ctx, t.regionOtherSpecify ?? "", TEXT.regionOtherSpecify);
+  }
+  const nutritionOn = t.individualNutrition || (t.nutritionItems?.length ?? 0) > 0 || Boolean(t.individualOther?.trim());
+  maybeTick(ctx, nutritionOn, BOX.individualNutrition);
+  fitAndDraw(ctx, nutritionSpecifyText(t), TEXT.individualSpecify);
   maybeTick(ctx, t.heavyMetal, BOX.heavyMetal);
+  if (t.heavyMetal) fitAndDraw(ctx, t.heavyMetalSpecify ?? "", TEXT.heavyMetalSpecify);
   maybeTick(ctx, t.preservative, BOX.preservative);
+  if (t.preservative) fitAndDraw(ctx, t.preservativeSpecify ?? "", TEXT.preservativeSpecify);
   maybeTick(ctx, t.colour, BOX.colour);
+  if (t.colour) fitAndDraw(ctx, t.colourSpecify ?? "", TEXT.colourSpecify);
   maybeTick(ctx, t.pesticide, BOX.pesticide);
+  if (t.pesticide) fitAndDraw(ctx, t.pesticideSpecify ?? "", TEXT.pesticideSpecify);
   maybeTick(ctx, t.melamine, BOX.melamine);
   maybeTick(ctx, t.aflatoxin, BOX.aflatoxin);
+  maybeTick(ctx, Boolean((t.otherChemical ?? "").trim()), BOX.otherChemical);
   fitAndDraw(ctx, t.otherChemical, TEXT.otherChemical);
 
   maybeTick(ctx, sample.storage === "frozen", BOX.frozen);

@@ -2,6 +2,7 @@ import { todayIso, uid } from "./utils";
 import type {
   CompanyPreset,
   Job,
+  NutritionItem,
   Sample,
   SampleType,
   ServiceLevel,
@@ -66,11 +67,12 @@ export const ORIGIN_OPTIONS = [
   "China",
   "Australia",
   "Brazil",
-  "New Zealand",
   "Canada",
   "Japan",
   "Thailand",
 ];
+
+export const EXTRA_MANUFACTURERS = ["Wilson", "Million", "Oriental"];
 
 export const MANUFACTURER_PRESETS: Record<SampleType, string[]> = {
   air: ["YLPC", "MIHK"],
@@ -119,11 +121,18 @@ export function defaultTests(): Tests {
     nutritionLabeling: false,
     panelRequested: false,
     nutritionRegion: [],
+    regionOtherSpecify: "",
     individualNutrition: false,
+    nutritionItems: [],
+    individualOther: "",
     heavyMetal: false,
+    heavyMetalSpecify: "",
     preservative: false,
+    preservativeSpecify: "",
     colour: false,
+    colourSpecify: "",
     pesticide: false,
+    pesticideSpecify: "",
     melamine: false,
     aflatoxin: false,
     otherChemical: "",
@@ -234,16 +243,34 @@ export const CHEMICAL_TESTS: Array<{
   >;
   en: string;
   zh: string;
+  specify?: keyof Pick<
+    Tests,
+    | "heavyMetalSpecify"
+    | "preservativeSpecify"
+    | "colourSpecify"
+    | "pesticideSpecify"
+  >;
 }> = [
   { key: "nutritionLabeling", en: "Nutrition Labeling", zh: "營養標籤" },
   { key: "panelRequested", en: "Panel requested", zh: "營養標籤組合" },
-  { key: "individualNutrition", en: "Individual items", zh: "個別營養素" },
-  { key: "heavyMetal", en: "Heavy Metal", zh: "重金屬" },
-  { key: "preservative", en: "Preservative", zh: "防腐劑" },
-  { key: "colour", en: "Colouring Matter", zh: "色素" },
-  { key: "pesticide", en: "Pesticide Residue", zh: "除害劑殘餘" },
+  { key: "individualNutrition", en: "Individual Nutrition", zh: "個別營養素" },
+  { key: "heavyMetal", en: "Heavy Metal", zh: "重金屬", specify: "heavyMetalSpecify" },
+  { key: "preservative", en: "Preservative", zh: "防腐劑", specify: "preservativeSpecify" },
+  { key: "colour", en: "Artificial Colour", zh: "人造色素", specify: "colourSpecify" },
+  { key: "pesticide", en: "Pesticides", zh: "殘餘農藥", specify: "pesticideSpecify" },
   { key: "melamine", en: "Melamine", zh: "三聚氰胺" },
   { key: "aflatoxin", en: "Aflatoxin", zh: "黃曲霉毒素" },
+];
+
+export const NUTRITION_ITEMS: Array<{ id: NutritionItem; en: string; zh: string }> = [
+  { id: "carbohydrate", en: "Carbohydrate", zh: "碳水化合物" },
+  { id: "fat", en: "Fat", zh: "脂肪" },
+  { id: "protein", en: "Protein", zh: "蛋白質" },
+  { id: "cholesterol", en: "Cholesterol", zh: "膽固醇" },
+  { id: "sugar", en: "Sugar", zh: "糖份" },
+  { id: "fiber", en: "Dietary Fiber", zh: "膳食纖維" },
+  { id: "minerals", en: "Minerals", zh: "礦物質" },
+  { id: "vitamins", en: "Vitamins", zh: "維生素" },
 ];
 
 export const NUTRITION_REGIONS: Array<{ id: "hk" | "us" | "china" | "other"; en: string }> = [
@@ -252,3 +279,11 @@ export const NUTRITION_REGIONS: Array<{ id: "hk" | "us" | "china" | "other"; en:
   { id: "china", en: "China" },
   { id: "other", en: "Other" },
 ];
+
+export function nutritionSpecifyText(tests: Tests): string {
+  const selected = NUTRITION_ITEMS.filter((i) => (tests.nutritionItems ?? []).includes(i.id)).map(
+    (i) => i.en,
+  );
+  const extra = tests.individualOther?.trim();
+  return [...selected, extra].filter(Boolean).join(", ");
+}

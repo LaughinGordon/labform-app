@@ -11,6 +11,16 @@ export interface TestItem {
   specify: string;
 }
 
+export type NutritionItem =
+  | "carbohydrate"
+  | "fat"
+  | "protein"
+  | "cholesterol"
+  | "sugar"
+  | "fiber"
+  | "minerals"
+  | "vitamins";
+
 export interface Tests {
   shelfLife: boolean;
   shelfLifeDate: string;
@@ -28,11 +38,18 @@ export interface Tests {
   nutritionLabeling: boolean;
   panelRequested: boolean;
   nutritionRegion: Array<"hk" | "us" | "china" | "other">;
+  regionOtherSpecify?: string;
   individualNutrition: boolean;
+  nutritionItems?: NutritionItem[];
+  individualOther?: string;
   heavyMetal: boolean;
+  heavyMetalSpecify?: string;
   preservative: boolean;
+  preservativeSpecify?: string;
   colour: boolean;
+  colourSpecify?: string;
   pesticide: boolean;
+  pesticideSpecify?: string;
   melamine: boolean;
   aflatoxin: boolean;
   otherChemical: string;
