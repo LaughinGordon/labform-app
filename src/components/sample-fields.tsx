@@ -10,6 +10,7 @@ import {
   NUTRITION_ITEMS,
   NUTRITION_REGIONS,
   ORIGIN_OPTIONS,
+  PRODUCT_TEMPS,
 } from "@/lib/presets";
 import type { Job, NutritionItem, Sample, TestItem, Tests } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -93,6 +94,28 @@ export function SampleFields({
             onChange={(e) => onChange({ productDescription: e.target.value })}
           />
         </Field>
+        <div className="flex flex-wrap gap-1">
+          {PRODUCT_TEMPS.map((temp) => {
+            const on = sample.productDescription.includes(temp);
+            return (
+              <Chip
+                key={temp}
+                active={on}
+                onClick={() => {
+                  const desc = sample.productDescription;
+                  const next = on
+                    ? desc.replace(temp, "").replace(/\s{2,}/g, " ").trim()
+                    : desc.trim()
+                      ? `${desc.trim()} ${temp}`
+                      : temp;
+                  onChange({ productDescription: next });
+                }}
+              >
+                {temp}
+              </Chip>
+            );
+          })}
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <Field label="Sample quantity 樣品數量">
             <Input
@@ -108,12 +131,6 @@ export function SampleFields({
             />
           </Field>
         </div>
-        <Field label="Additional info on report 附加資料">
-          <Input
-            value={sample.additionalInfo}
-            onChange={(e) => onChange({ additionalInfo: e.target.value })}
-          />
-        </Field>
         <Field label="Manufacturer / Supplier 製造商">
           <Input
             value={sample.manufacturer}
@@ -130,17 +147,6 @@ export function SampleFields({
               {m}
             </Chip>
           ))}
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Field label="Style / Item No. 款號">
-            <Input
-              value={sample.styleItemNo}
-              onChange={(e) => onChange({ styleItemNo: e.target.value })}
-            />
-          </Field>
-          <Field label="P.O. / Lot No. 訂單 / 批號">
-            <Input value={sample.poLotNo} onChange={(e) => onChange({ poLotNo: e.target.value })} />
-          </Field>
         </div>
         <Field label="Country of origin 原產地">
           <Input
@@ -166,14 +172,6 @@ export function SampleFields({
               onChange={(e) => onChange({ countryOfDestination: e.target.value })}
             />
           </Field>
-          <Field label="Buyer / Agent 買家">
-            <Input
-              value={sample.buyerAgent}
-              onChange={(e) => onChange({ buyerAgent: e.target.value })}
-            />
-          </Field>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
           <Field label="Others / Reference No. 參考編號">
             <Input
               value={sample.othersReference}
@@ -181,18 +179,74 @@ export function SampleFields({
               onChange={(e) => onChange({ othersReference: e.target.value })}
             />
           </Field>
-          <Field label="Production date 生產日期">
+        </div>
+        <Field label="Production date 生產日期">
+          <Input
+            value={sample.productionDate}
+            placeholder="e.g. 17/9/2026"
+            onChange={(e) => onChange({ productionDate: e.target.value })}
+          />
+        </Field>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="Style / Item No. 款號">
             <Input
-              value={sample.productionDate}
-              placeholder="e.g. 17/9/2026"
-              onChange={(e) => onChange({ productionDate: e.target.value })}
+              value={sample.styleItemNo}
+              onChange={(e) => onChange({ styleItemNo: e.target.value })}
             />
           </Field>
+          <Field label="P.O. / Lot No. 訂單 / 批號">
+            <Input value={sample.poLotNo} onChange={(e) => onChange({ poLotNo: e.target.value })} />
+          </Field>
         </div>
+        <Field label="Additional info on report 附加資料">
+          <Input
+            value={sample.additionalInfo}
+            onChange={(e) => onChange({ additionalInfo: e.target.value })}
+          />
+        </Field>
+        <Field label="Buyer / Agent 買家">
+          <Input
+            value={sample.buyerAgent}
+            onChange={(e) => onChange({ buyerAgent: e.target.value })}
+          />
+        </Field>
       </section>
 
       <section className="flex flex-col gap-2">
         <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">Microbiological tests 微生物測試</h3>
+        <div className="rounded-md border border-border bg-bg-elevated px-1.5 py-1">
+          <CheckRow
+            checked={sample.tests.shelfLife}
+            onCheckedChange={(on) =>
+              onChange({
+                tests: {
+                  ...sample.tests,
+                  shelfLife: on,
+                  shelfLifeDate:
+                    on && !sample.tests.shelfLifeDate
+                      ? sample.productionDate
+                      : sample.tests.shelfLifeDate,
+                },
+              })
+            }
+          >
+            <span className="font-medium">Shelf life test</span>
+            <span className="ml-1.5 text-muted">保質期測試</span>
+          </CheckRow>
+          {sample.tests.shelfLife && (
+            <div className="mt-1.5 pl-8">
+              <Field label="Production day 生產日期 DD/MM/YY">
+                <Input
+                  value={sample.tests.shelfLifeDate}
+                  placeholder="DD/MM/YY"
+                  onChange={(e) =>
+                    onChange({ tests: { ...sample.tests, shelfLifeDate: e.target.value } })
+                  }
+                />
+              </Field>
+            </div>
+          )}
+        </div>
         <div className="grid grid-cols-2 gap-1.5">
           {MICRO_TESTS.map((row) => {
             const item = sample.tests[row.key];
@@ -364,6 +418,30 @@ export function SampleFields({
               onChange={(e) => onChange({ clientSamplingDate: e.target.value })}
             />
           </Field>
+          <Field label="Sampling condition">
+            <NativeSelect
+              value={sample.samplingCondition}
+              onChange={(e) =>
+                onChange({
+                  samplingCondition: e.target.value as Sample["samplingCondition"],
+                })
+              }
+            >
+              <option value="original">In original unopened 原裝未開</option>
+              <option value="sterile">Sterile container 無菌容器</option>
+              <option value="other">Other 其他</option>
+            </NativeSelect>
+          </Field>
+        </div>
+        {sample.samplingCondition === "other" && (
+          <Field label="Sampling other">
+            <Input
+              value={sample.samplingOther}
+              onChange={(e) => onChange({ samplingOther: e.target.value })}
+            />
+          </Field>
+        )}
+        <div className="grid grid-cols-2 gap-2">
           <Field label="SGS collection date 收板日期">
             <Input
               type="date"
@@ -371,33 +449,28 @@ export function SampleFields({
               onChange={(e) => onChange({ collectionDate: e.target.value })}
             />
           </Field>
+          <Field label="Test date 測試日期">
+            <Input
+              type="date"
+              value={sample.testDate ?? ""}
+              onChange={(e) => onChange({ testDate: e.target.value })}
+            />
+          </Field>
         </div>
-        <Field label="Collection time">
-          <NativeSelect
-            value={sample.collectionAmpm}
-            onChange={(e) =>
-              onChange({ collectionAmpm: e.target.value as Sample["collectionAmpm"] })
-            }
-          >
-            <option value="">—</option>
-            <option value="am">am</option>
-            <option value="pm">pm</option>
-          </NativeSelect>
-        </Field>
-        <Field label="Sampling condition">
-          <NativeSelect
-            value={sample.samplingCondition}
-            onChange={(e) =>
-              onChange({
-                samplingCondition: e.target.value as Sample["samplingCondition"],
-              })
-            }
-          >
-            <option value="original">In original unopened 原裝未開</option>
-            <option value="sterile">Sterile container 無菌容器</option>
-            <option value="other">Other 其他</option>
-          </NativeSelect>
-        </Field>
+        <div className="flex flex-wrap items-center gap-1">
+          <span className="text-xs font-medium text-muted">am / pm</span>
+          {(["am", "pm"] as const).map((t) => (
+            <Chip
+              key={t}
+              active={sample.collectionAmpm === t}
+              onClick={() =>
+                onChange({ collectionAmpm: sample.collectionAmpm === t ? "" : t })
+              }
+            >
+              {t}
+            </Chip>
+          ))}
+        </div>
       </section>
     </div>
   );

@@ -3,6 +3,7 @@ import type {
   CompanyPreset,
   Job,
   NutritionItem,
+  RawKind,
   Sample,
   SampleType,
   ServiceLevel,
@@ -50,7 +51,7 @@ export const SAMPLE_TYPE_META: Record<
   raw: {
     en: "Raw food",
     zh: "生食樣本",
-    hint: "急凍肉類及原材料 · Frozen",
+    hint: "急凍肉類 · Beef / Chicken / Other",
     storageLabel: "Frozen",
   },
   cooked: {
@@ -71,6 +72,14 @@ export const ORIGIN_OPTIONS = [
   "Japan",
   "Thailand",
 ];
+
+export const RAW_KINDS: Array<{ id: RawKind; en: string; zh: string }> = [
+  { id: "beef", en: "Beef", zh: "牛肉" },
+  { id: "chicken", en: "Chicken", zh: "雞肉" },
+  { id: "other", en: "Other", zh: "其他" },
+];
+
+export const PRODUCT_TEMPS = ["0-4℃", "-18℃"] as const;
 
 export const EXTRA_MANUFACTURERS = ["Wilson", "Million", "Oriental"];
 
@@ -108,16 +117,20 @@ function testItem(on = false, methods: string[] = []): TestItem {
   return { on, methods: on ? methods : [], specify: "" };
 }
 
-export function defaultTests(): Tests {
+export function defaultTests(type: SampleType = "cooked", rawKind?: RawKind): Tests {
+  const tpcOn = true;
+  const ecoliOn = type === "cooked" || (type === "raw" && rawKind !== "chicken" && rawKind !== "other");
+  const coliformOn = type === "raw" && rawKind === "chicken";
+  const yeastOn = type === "air";
   return {
     shelfLife: false,
     shelfLifeDate: "",
-    tpc: testItem(true, ["AOAC"]),
-    ecoli: testItem(true, ["AOAC"]),
-    coliform: testItem(),
+    tpc: testItem(tpcOn, tpcOn ? ["AOAC"] : []),
+    ecoli: testItem(ecoliOn, ecoliOn ? ["AOAC"] : []),
+    coliform: testItem(coliformOn, coliformOn ? ["AOAC"] : []),
     salmonella: testItem(),
     staph: testItem(),
-    yeast: testItem(),
+    yeast: testItem(yeastOn, yeastOn ? ["AOAC"] : []),
     clostridium: testItem(),
     bacillus: testItem(),
     vibrio: testItem(),
@@ -144,6 +157,17 @@ export function defaultTests(): Tests {
   };
 }
 
+export function applyMicroDefaults(tests: Tests, type: SampleType, rawKind?: RawKind): Tests {
+  const preset = defaultTests(type, rawKind);
+  return {
+    ...tests,
+    tpc: preset.tpc,
+    ecoli: preset.ecoli,
+    coliform: preset.coliform,
+    yeast: preset.yeast,
+  };
+}
+
 export function companyForType(type: SampleType): CompanyPreset {
   return COMPANIES.find((c) => c.defaultFor.includes(type)) ?? COMPANIES[0];
 }
@@ -154,7 +178,7 @@ export function defaultStorage(type: SampleType) {
   return "frozen" as const;
 }
 
-export function createSample(type: SampleType, index = 1): Sample {
+export function createSample(type: SampleType, index = 1, rawKind?: RawKind): Sample {
   const date = todayIso();
   return {
     id: uid(),
@@ -162,7 +186,7 @@ export function createSample(type: SampleType, index = 1): Sample {
     productDescription: "",
     sampleQuantity: "1",
     additionalInfo: "",
-    manufacturer: "",
+    manufacturer: type === "cooked" ? "MIHK" : "",
     styleItemNo: "",
     countryOfOrigin: type === "raw" ? "" : "HK",
     poLotNo: "",
@@ -170,23 +194,25 @@ export function createSample(type: SampleType, index = 1): Sample {
     buyerAgent: "",
     othersReference: "",
     productionDate: "",
-    tests: defaultTests(),
+    tests: defaultTests(type, rawKind),
     storage: defaultStorage(type),
     storageOther: "",
     clientSamplingDate: "",
     collectionDate: date,
     collectionAmpm: "",
+    testDate: "",
     samplingCondition: "original",
     samplingOther: "",
   };
 }
 
-export function createJob(type: SampleType): Job {
+export function createJob(type: SampleType, rawKind?: RawKind): Job {
   const company = companyForType(type);
   const now = new Date().toISOString();
   return {
     id: uid(),
     sampleType: type,
+    rawKind: type === "raw" ? (rawKind ?? "beef") : undefined,
     companyId: company.id,
     companyName: company.name,
     address: company.address,
@@ -198,7 +224,7 @@ export function createJob(type: SampleType): Job {
     fontScale: 1,
     createdAt: now,
     updatedAt: now,
-    samples: [createSample(type, 1)],
+    samples: [createSample(type, 1, rawKind)],
   };
 }
 
@@ -222,7 +248,7 @@ export const MICRO_TESTS: Array<{
   methods: string[];
 }> = [
   { key: "tpc", en: "Total Plate Count", zh: "菌落總數", methods: ["AOAC", "FDA", "APHA", "GB", "Others"] },
-  { key: "ecoli", en: "E.Coli", zh: "大腸埃希氏菌", methods: ["AOAC", "FDA", "DoE", "GB", "Others"] },
+  { key: "ecoli", en: "E.Coli", zh: "大腸桿菌", methods: ["AOAC", "FDA", "DoE", "GB", "Others"] },
   { key: "coliform", en: "Coliform", zh: "大腸菌群", methods: ["AOAC", "FDA", "DoE", "GB", "Others"] },
   { key: "salmonella", en: "Salmonella", zh: "沙門氏菌", methods: ["AOAC", "FDA", "GB", "Others"] },
   { key: "staph", en: "Staph. Aureus", zh: "金黃色葡萄球菌", methods: ["AOAC", "FDA", "GB", "Others"] },

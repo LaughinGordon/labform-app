@@ -35,7 +35,7 @@ export const TEXT: Record<string, TextField> = {
   buyer: { x: 1160, y: 772, w: 400, size: 14, shrink: true },
   others: { x: 530, y: 802, w: 460, size: 14, shrink: true },
   prodDate: { x: 1190, y: 802, w: 360, size: 16 },
-  shelfLifeDate: { x: 620, y: 916, w: 220, size: 13 },
+  shelfLifeDate: { x: 648, y: 908, w: 160, size: 14 },
   otherMicroSpecify: { x: 360, y: 1280, w: 480, size: 12, shrink: true },
   regionOtherSpecify: { x: 1420, y: 956, w: 150, size: 11, shrink: true },
   individualSpecify: { x: 1180, y: 1088, w: 340, size: 12, shrink: true },
@@ -49,9 +49,15 @@ export const TEXT: Record<string, TextField> = {
   sgsDate: { x: 1185, y: 1394, w: 200, size: 16 },
   ampm: { x: 1418, y: 1394, w: 140, size: 13 },
   samplingOther: { x: 1460, y: 1426, w: 110, size: 12, shrink: true },
+  testDate: { x: 150, y: 1458, w: 520, size: 15 },
   conclusionSpecify: { x: 720, y: 1636, w: 760, size: 13, shrink: true },
   foodCategory: { x: 1100, y: 1698, w: 400, size: 13, shrink: true },
 };
+
+export const AMPM_STRIKE = {
+  am: { x1: 1416, x2: 1452, y: 1395 },
+  pm: { x1: 1476, x2: 1512, y: 1395 },
+} as const;
 
 const box = (x: number, y: number) => ({ x, y });
 

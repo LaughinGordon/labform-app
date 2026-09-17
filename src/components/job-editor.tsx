@@ -19,8 +19,10 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import {
   COMPANIES,
+  RAW_KINDS,
   SAMPLE_TYPE_META,
   SERVICE_LEVELS,
+  applyMicroDefaults,
   jobFontScale,
   jobQuotationRequired,
   jobSeparateReport,
@@ -80,7 +82,9 @@ export function JobEditor({ job }: { job: Job }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <Badge tone={job.sampleType}>
-                {meta.en} · {meta.zh}
+                {job.sampleType === "raw" && job.rawKind
+                  ? `${RAW_KINDS.find((k) => k.id === job.rawKind)?.en} · ${RAW_KINDS.find((k) => k.id === job.rawKind)?.zh}`
+                  : `${meta.en} · ${meta.zh}`}
               </Badge>
               <span className="truncate text-xs text-muted">
                 {job.samples.length} sample{job.samples.length > 1 ? "s" : ""}
@@ -210,6 +214,30 @@ export function JobEditor({ job }: { job: Job }) {
                 />
               </Field>
             </section>
+
+            {job.sampleType === "raw" && (
+              <section className="flex flex-col gap-2">
+                <h3 className="text-xs font-semibold tracking-wide uppercase text-muted">
+                  Raw type 生食種類
+                </h3>
+                <div className="flex flex-wrap gap-1">
+                  {RAW_KINDS.map((k) => (
+                    <Chip
+                      key={k.id}
+                      active={job.rawKind === k.id}
+                      onClick={() => {
+                        update(job.id, { rawKind: k.id });
+                        updateSample(job.id, sample.id, {
+                          tests: applyMicroDefaults(sample.tests, "raw", k.id),
+                        });
+                      }}
+                    >
+                      {k.en} {k.zh}
+                    </Chip>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <section className="flex flex-col gap-2">
               <div className="flex items-center justify-between">

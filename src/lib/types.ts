@@ -1,4 +1,5 @@
 export type SampleType = "air" | "raw" | "cooked";
+export type RawKind = "beef" | "chicken" | "other";
 
 export type StorageCondition = "frozen" | "refrigerated" | "ambient" | "other" | "";
 export type SamplingCondition = "original" | "sterile" | "other" | "";
@@ -75,6 +76,7 @@ export interface Sample {
   clientSamplingDate: string;
   collectionDate: string;
   collectionAmpm: Ampm;
+  testDate: string;
   samplingCondition: SamplingCondition;
   samplingOther: string;
 }
@@ -82,6 +84,7 @@ export interface Sample {
 export interface Job {
   id: string;
   sampleType: SampleType;
+  rawKind?: RawKind;
   companyId: string;
   companyName: string;
   address: string;

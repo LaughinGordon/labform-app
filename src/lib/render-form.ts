@@ -1,5 +1,5 @@
 import { formatFormDate } from "./utils";
-import { BOX, FONT_STACK, FORM_PX, INK, METHOD_BOX, TEXT, type TextField } from "./form-layout";
+import { AMPM_STRIKE, BOX, FONT_STACK, FORM_PX, INK, METHOD_BOX, TEXT, type TextField } from "./form-layout";
 import { jobFontScale, jobQuotationRequired, jobSeparateReport, jobServiceLevel, nutritionSpecifyText } from "./presets";
 import type { Job, Sample, TestItem } from "./types";
 
@@ -219,8 +219,17 @@ export function paintForm(
 
   draw(formatFormDate(sample.clientSamplingDate), TEXT.clientDate);
   draw(formatFormDate(sample.collectionDate), TEXT.sgsDate);
-  if (sample.collectionAmpm) {
-    draw(sample.collectionAmpm, TEXT.ampm);
+  if (sample.collectionAmpm === "am" || sample.collectionAmpm === "pm") {
+    const strikeOut = sample.collectionAmpm === "am" ? AMPM_STRIKE.pm : AMPM_STRIKE.am;
+    ctx.save();
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(strikeOut.x1, strikeOut.y);
+    ctx.lineTo(strikeOut.x2, strikeOut.y);
+    ctx.stroke();
+    ctx.restore();
   }
 
   maybeTick(ctx, sample.samplingCondition === "original", BOX.original);
@@ -228,6 +237,9 @@ export function paintForm(
   maybeTick(ctx, sample.samplingCondition === "other", BOX.samplingOther);
   if (sample.samplingCondition === "other") {
     draw(sample.samplingOther, TEXT.samplingOther);
+  }
+  if ((sample.testDate ?? "").trim()) {
+    draw(`Test date : ${formatFormDate(sample.testDate)}`, TEXT.testDate);
   }
 
   const service = jobServiceLevel(job);

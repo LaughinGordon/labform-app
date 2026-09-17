@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createJob, createSample, COMPANIES } from "./presets";
-import type { Job, Sample, SampleType } from "./types";
+import type { Job, RawKind, Sample, SampleType } from "./types";
 
 interface LabState {
   jobs: Job[];
-  create: (type: SampleType) => Job;
+  create: (type: SampleType, rawKind?: RawKind) => Job;
   update: (id: string, patch: Partial<Job>) => void;
   remove: (id: string) => void;
   duplicate: (id: string) => Job | null;
@@ -25,8 +25,8 @@ export const useLabStore = create<LabState>()(
   persist(
     (set, get) => ({
       jobs: [],
-      create: (type) => {
-        const job = createJob(type);
+      create: (type, rawKind) => {
+        const job = createJob(type, rawKind);
         set({ jobs: [job, ...get().jobs] });
         return job;
       },
@@ -56,12 +56,15 @@ export const useLabStore = create<LabState>()(
         set({
           jobs: get().jobs.map((j) => {
             if (j.id !== jobId) return j;
-            const sample = createSample(j.sampleType, j.samples.length + 1);
+            const sample = createSample(j.sampleType, j.samples.length + 1, j.rawKind);
             if (j.samples[0]) {
               sample.collectionDate = j.samples[0].collectionDate;
+              sample.collectionAmpm = j.samples[0].collectionAmpm;
+              sample.testDate = j.samples[0].testDate;
               sample.storage = j.samples[0].storage;
               sample.samplingCondition = j.samples[0].samplingCondition;
               sample.countryOfDestination = j.samples[0].countryOfDestination;
+              sample.manufacturer = j.samples[0].manufacturer;
               sample.tests = structuredClone(j.samples[0].tests);
             }
             return touch(j, { samples: [...j.samples, sample] });

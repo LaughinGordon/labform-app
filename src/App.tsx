@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { JobEditor } from "@/components/job-editor";
-import { SAMPLE_TYPE_META } from "@/lib/presets";
+import { RAW_KINDS, SAMPLE_TYPE_META } from "@/lib/presets";
 import { useLabStore, useStoreHydrated } from "@/lib/store";
-import type { SampleType } from "@/lib/types";
+import type { RawKind, SampleType } from "@/lib/types";
 
 const TYPES: Array<{ type: SampleType; icon: typeof Wind }> = [
   { type: "air", icon: Wind },
@@ -22,8 +22,8 @@ function Home() {
   const remove = useLabStore((s) => s.remove);
   const duplicate = useLabStore((s) => s.duplicate);
 
-  const start = (type: SampleType) => {
-    const job = create(type);
+  const start = (type: SampleType, rawKind?: RawKind) => {
+    const job = create(type, rawKind);
     window.location.assign(`/jobs/${job.id}`);
   };
 
@@ -48,6 +48,38 @@ function Home() {
         <section className="grid gap-3 sm:grid-cols-3">
           {TYPES.map(({ type, icon: Icon }) => {
             const meta = SAMPLE_TYPE_META[type];
+            if (type === "raw") {
+              return (
+                <div
+                  key={type}
+                  className="flex flex-col items-start gap-3 rounded-xl bg-surface p-4 text-left paper-shadow"
+                >
+                  <span className="flex size-11 items-center justify-center rounded-lg bg-bg text-primary">
+                    <Icon className="size-5" />
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-base font-semibold">
+                      {meta.en}
+                      <span className="ml-2 text-muted">{meta.zh}</span>
+                    </span>
+                    <span className="text-sm text-muted">{meta.hint}</span>
+                  </div>
+                  <div className="mt-auto flex w-full flex-wrap gap-1">
+                    {RAW_KINDS.map((k) => (
+                      <button
+                        key={k.id}
+                        type="button"
+                        onClick={() => start("raw", k.id)}
+                        className="inline-flex h-8 flex-1 items-center justify-center rounded-full border border-border bg-bg px-2 text-xs font-medium hover:border-primary hover:text-primary"
+                      >
+                        {k.en}
+                        <span className="ml-1 text-muted">{k.zh}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
             return (
               <button
                 key={type}
@@ -72,6 +104,8 @@ function Home() {
             );
           })}
         </section>
+
+
 
         <section className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
@@ -100,7 +134,9 @@ function Home() {
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge tone={job.sampleType}>
-                            {meta.zh} · {meta.en}
+                            {job.sampleType === "raw" && job.rawKind
+                              ? `${RAW_KINDS.find((k) => k.id === job.rawKind)?.zh} · ${RAW_KINDS.find((k) => k.id === job.rawKind)?.en}`
+                              : `${meta.zh} · ${meta.en}`}
                           </Badge>
                           <span className="text-xs text-subtle">
                             {format(new Date(job.updatedAt), "d MMM yyyy HH:mm")}
