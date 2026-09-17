@@ -49,7 +49,7 @@ export const TEXT: Record<string, TextField> = {
   sgsDate: { x: 1185, y: 1394, w: 200, size: 16 },
   ampm: { x: 1418, y: 1394, w: 140, size: 13 },
   samplingOther: { x: 1460, y: 1426, w: 110, size: 12, shrink: true },
-  testDate: { x: 150, y: 1458, w: 520, size: 15 },
+  testDate: { x: 1185, y: 1458, w: 420, size: 15 },
   conclusionSpecify: { x: 720, y: 1636, w: 760, size: 13, shrink: true },
   foodCategory: { x: 1100, y: 1698, w: 400, size: 13, shrink: true },
 };
