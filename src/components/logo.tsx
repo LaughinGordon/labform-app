@@ -1,0 +1,25 @@
+import { cn } from "@/lib/utils";
+
+export function Logo({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 32 32"
+      fill="none"
+      className={cn("size-8 shrink-0", className)}
+      aria-hidden="true"
+    >
+      <rect width="32" height="32" rx="8" fill="#1F4A3A" />
+      <path
+        fill="#F4F1EA"
+        d="M13.2 5h5.6v2.1h-1.1v6.4L22.9 24.6A2.8 2.8 0 0 1 20.2 28H11.8a2.8 2.8 0 0 1-2.7-3.4L12.3 13.5V7.1h-1.1V5Z"
+      />
+      <path
+        fill="#C4A35A"
+        d="M10.8 21.2c.7-1 2-1.1 3-.2 1.1.9 2.3.2 3.5-.5 1.1-.6 2.4 0 3.2 1.1L21 26.4h-9.4c-.6-1.5-.8-3.7-.8-5.2Z"
+      />
+      <circle cx="23.4" cy="9.2" r="3.3" fill="#F4F1EA" />
+      <circle cx="23.4" cy="9.2" r="1.7" fill="#1F4A3A" />
+    </svg>
+  );
+}

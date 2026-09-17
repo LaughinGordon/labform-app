@@ -1,5 +1,6 @@
 import { format } from "date-fns";
-import { Copy, Plus, Trash2, Wind, Beef, Soup, FileText } from "lucide-react";
+import { Copy, Plus, Trash2, Wind, Beef, Soup, FlaskConical } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,12 +31,15 @@ function Home() {
     <main className="min-h-svh bg-bg">
       <div className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-10 sm:py-14">
         <header className="flex flex-col gap-3">
-          <p className="text-xs font-medium tracking-[0.18em] text-muted uppercase">
-            SGS AFL L56
-          </p>
-          <h1 className="max-w-xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-            LabForm
-          </h1>
+          <div className="flex items-center gap-3">
+            <Logo className="size-11" />
+            <div className="flex flex-col gap-0.5">
+              <p className="text-xs font-medium tracking-[0.18em] text-muted uppercase">
+                SGS AFL L56
+              </p>
+              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">LabForm</h1>
+            </div>
+          </div>
           <p className="max-w-xl text-pretty text-muted">
             填寫食物及微生物測試申請表，預覽後匯出成 SGS 原表格 PDF。空氣、生食、熟食三類樣本，一張表格一個樣品。
           </p>
@@ -78,7 +82,7 @@ function Home() {
             <Card className="h-20 animate-pulse bg-bg-elevated" />
           ) : jobs.length === 0 ? (
             <Card className="flex items-center gap-3 text-sm text-muted">
-              <FileText className="size-4 shrink-0" />
+              <FlaskConical className="size-4 shrink-0" />
               No applications yet. Choose a sample type above.
             </Card>
           ) : (

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { FormPreview } from "@/components/form-preview";
 import { SampleFields } from "@/components/sample-fields";
 import { Chip } from "@/components/chip";
+import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckRow } from "@/components/ui/checkbox";
@@ -68,6 +69,7 @@ export function JobEditor({ job }: { job: Job }) {
               <ArrowLeft />
             </a>
           </Button>
+          <Logo className="size-8" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <Badge tone={job.sampleType}>
