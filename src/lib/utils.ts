@@ -72,17 +72,17 @@ const RAW_KIND_EN: Record<RawKind, string> = { beef: "Beef", chicken: "Chicken",
 const RAW_KIND_ZH: Record<RawKind, string> = { beef: "牛肉", chicken: "雞肉", other: "其他" };
 
 export function sampleRawKind(
-  sample: { rawKind?: RawKind },
+  sample: { rawKind?: RawKind; productDescription?: string },
   job: { sampleType: SampleType; rawKind?: RawKind },
 ): RawKind | undefined {
   if (job.sampleType !== "raw") return undefined;
-  return sample.rawKind ?? job.rawKind ?? "beef";
+  return sample.rawKind ?? inferRawKind(sample.productDescription) ?? job.rawKind ?? "beef";
 }
 
 export function jobRawKinds(job: {
   sampleType: SampleType;
   rawKind?: RawKind;
-  samples: Array<{ rawKind?: RawKind }>;
+  samples: Array<{ rawKind?: RawKind; productDescription?: string }>;
 }): RawKind[] {
   if (job.sampleType !== "raw") return [];
   const present = new Set(job.samples.map((s) => sampleRawKind(s, job)));
@@ -112,6 +112,15 @@ export function rawKindsZh(job: {
 const COUNTRY_SUFFIX =
   "US|USA|UK|HK|China|Australia|Brazil|Canada|Japan|Thailand|NZ|New Zealand";
 const KIND_SUFFIX = "Beef|Chicken|Other|牛肉|雞肉|其他";
+
+export function inferRawKind(desc?: string): RawKind | undefined {
+  const s = (desc ?? "").trim();
+  if (!s) return undefined;
+  if (/\bchicken\b|雞肉/i.test(s)) return "chicken";
+  if (/\bbeef\b|牛肉/i.test(s)) return "beef";
+  if (/\bother\b|其他/i.test(s)) return "other";
+  return undefined;
+}
 
 export function shortenProductName(desc: string): string {
   let s = desc.replace(/\s+/g, " ").trim();

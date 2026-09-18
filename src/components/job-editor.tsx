@@ -54,12 +54,14 @@ export function JobEditor({ job }: { job: Job }) {
     update(job.id, { fontScale: Math.min(1.5, Math.max(0.7, next)) });
   };
 
+  const fileStem = jobFileStem(job);
+
   const onExport = async () => {
     setExporting(true);
     try {
       const blob = await exportJobPdf(job);
-      downloadBlob(blob, `${jobFileStem(job)}.pdf`);
-      toast.success(`Exported ${job.samples.length} form${job.samples.length > 1 ? "s" : ""}`);
+      downloadBlob(blob, `${fileStem}.pdf`);
+      toast.success(`Saved ${fileStem}.pdf`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Export failed");
     } finally {
@@ -91,6 +93,9 @@ export function JobEditor({ job }: { job: Job }) {
               </span>
             </div>
             <p className="truncate text-sm font-medium">{job.companyName}</p>
+            <p className="truncate text-[10px] text-muted" title={`${fileStem}.pdf`}>
+              {fileStem}.pdf
+            </p>
           </div>
           <div className="flex items-center gap-0.5 rounded-md border border-border bg-surface px-1">
             <Button
@@ -117,7 +122,7 @@ export function JobEditor({ job }: { job: Job }) {
               A+
             </Button>
           </div>
-          <Button onClick={onExport} disabled={exporting} title={`${jobFileStem(job)}.pdf`}>
+          <Button onClick={onExport} disabled={exporting} title={`${fileStem}.pdf`}>
             <Download />
             {exporting ? "Exporting…" : "PDF"}
           </Button>
