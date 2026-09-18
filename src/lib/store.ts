@@ -67,6 +67,7 @@ export const useLabStore = create<LabState>()(
               sample.manufacturer = j.samples[0].manufacturer;
               sample.tests = structuredClone(j.samples[0].tests);
             }
+            if (j.sampleType === "raw") sample.rawKind = j.rawKind ?? "beef";
             return touch(j, { samples: [...j.samples, sample] });
           }),
         }),
