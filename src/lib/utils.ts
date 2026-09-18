@@ -12,6 +12,17 @@ export function formatFormDate(iso: string): string {
   return `${Number(d)}/${Number(m)}/${y}`;
 }
 
+export function formatMonthYear(iso: string): string {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const match = iso.match(/^(\d{4})-(\d{2})/);
+  if (match) {
+    const month = months[Number(match[2]) - 1];
+    if (month) return `${month} ${match[1]}`;
+  }
+  const n = new Date();
+  return `${months[n.getMonth()]} ${n.getFullYear()}`;
+}
+
 export function todayIso(): string {
   const n = new Date();
   const y = n.getFullYear();
