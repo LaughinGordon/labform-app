@@ -31,7 +31,7 @@ import {
 import { useLabStore } from "@/lib/store";
 import { downloadBlob, exportJobPdf, jobFileStem } from "@/lib/export-pdf";
 import type { Job, ServiceLevel } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, rawKindsEn, rawKindsZh, sampleRawKind } from "@/lib/utils";
 
 export function JobEditor({ job }: { job: Job }) {
   const { update, applyCompany, addSample, updateSample, duplicateSample, removeSample } =
@@ -82,8 +82,8 @@ export function JobEditor({ job }: { job: Job }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <Badge tone={job.sampleType}>
-                {job.sampleType === "raw" && job.rawKind
-                  ? `${RAW_KINDS.find((k) => k.id === job.rawKind)?.en} · ${RAW_KINDS.find((k) => k.id === job.rawKind)?.zh}`
+                {job.sampleType === "raw"
+                  ? `${rawKindsEn(job)} · ${rawKindsZh(job)}`
                   : `${meta.en} · ${meta.zh}`}
               </Badge>
               <span className="truncate text-xs text-muted">
@@ -117,7 +117,7 @@ export function JobEditor({ job }: { job: Job }) {
               A+
             </Button>
           </div>
-          <Button onClick={onExport} disabled={exporting}>
+          <Button onClick={onExport} disabled={exporting} title={`${jobFileStem(job)}.pdf`}>
             <Download />
             {exporting ? "Exporting…" : "PDF"}
           </Button>
@@ -224,11 +224,21 @@ export function JobEditor({ job }: { job: Job }) {
                   {RAW_KINDS.map((k) => (
                     <Chip
                       key={k.id}
-                      active={job.rawKind === k.id}
+                      active={sampleRawKind(sample, job) === k.id}
                       onClick={() => {
-                        update(job.id, { rawKind: k.id });
-                        updateSample(job.id, sample.id, {
-                          tests: applyMicroDefaults(sample.tests, "raw", k.id),
+                        update(job.id, {
+                          rawKind: k.id,
+                          samples: job.samples.map((s) => {
+                            if (s.id === sample.id) {
+                              return {
+                                ...s,
+                                rawKind: k.id,
+                                tests: applyMicroDefaults(s.tests, "raw", k.id),
+                              };
+                            }
+                            if (!s.rawKind) return { ...s, rawKind: job.rawKind ?? "beef" };
+                            return s;
+                          }),
                         });
                       }}
                     >
@@ -264,6 +274,11 @@ export function JobEditor({ job }: { job: Job }) {
                     >
                       <span className="text-muted">{i + 1}.</span>{" "}
                       {s.productDescription || s.label || `Sample ${i + 1}`}
+                      {job.sampleType === "raw" ? (
+                        <span className="ml-1 text-[11px] text-muted">
+                          {RAW_KINDS.find((k) => k.id === sampleRawKind(s, job))?.en}
+                        </span>
+                      ) : null}
                     </button>
                     <Button
                       variant="ghost"
