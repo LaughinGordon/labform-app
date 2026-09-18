@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { JobEditor } from "@/components/job-editor";
 import { RAW_KINDS, SAMPLE_TYPE_META } from "@/lib/presets";
 import { useLabStore, useStoreHydrated } from "@/lib/store";
+import { jobSampleNames, rawKindsEn, rawKindsZh } from "@/lib/utils";
 import type { RawKind, SampleType } from "@/lib/types";
 
 const TYPES: Array<{ type: SampleType; icon: typeof Wind }> = [
@@ -105,8 +106,6 @@ function Home() {
           })}
         </section>
 
-
-
         <section className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
             <h2 className="text-sm font-semibold">Saved applications</h2>
@@ -123,7 +122,7 @@ function Home() {
             <ul className="flex flex-col gap-2">
               {jobs.map((job) => {
                 const meta = SAMPLE_TYPE_META[job.sampleType];
-                const first = job.samples[0]?.productDescription;
+                const names = jobSampleNames(job.samples);
                 return (
                   <li key={job.id}>
                     <div className="flex items-stretch gap-1 rounded-xl bg-surface paper-shadow">
@@ -134,8 +133,8 @@ function Home() {
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge tone={job.sampleType}>
-                            {job.sampleType === "raw" && job.rawKind
-                              ? `${RAW_KINDS.find((k) => k.id === job.rawKind)?.zh} · ${RAW_KINDS.find((k) => k.id === job.rawKind)?.en}`
+                            {job.sampleType === "raw"
+                              ? `${rawKindsZh(job)} · ${rawKindsEn(job)}`
                               : `${meta.zh} · ${meta.en}`}
                           </Badge>
                           <span className="text-xs text-subtle">
@@ -143,7 +142,7 @@ function Home() {
                           </span>
                         </div>
                         <p className="w-full truncate text-sm font-medium">
-                          {first || job.companyName}
+                          {names || job.companyName}
                         </p>
                         <p className="text-xs text-muted">
                           {job.companyName} · {job.samples.length} sample
