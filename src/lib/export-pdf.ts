@@ -1,6 +1,7 @@
 import { PDFDocument } from "pdf-lib";
+import { rawKindsEn } from "./presets";
 import { renderSampleCanvas } from "./render-form";
-import { formatMonthYear, todayIso } from "./utils";
+import { formatMonthYear, todayIso, uniqueJoin } from "./utils";
 import type { Job } from "./types";
 
 function canvasToPng(canvas: HTMLCanvasElement): Promise<Uint8Array> {
@@ -13,26 +14,6 @@ function canvasToPng(canvas: HTMLCanvasElement): Promise<Uint8Array> {
       resolve(new Uint8Array(await blob.arrayBuffer()));
     }, "image/png");
   });
-}
-
-function fileSafe(value: string): string {
-  return value.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
-}
-
-function uniqueJoin(values: string[], maxLen = 60): string {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const raw of values) {
-    const s = fileSafe(raw);
-    if (!s) continue;
-    const key = s.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(s);
-  }
-  const joined = out.join(" & ");
-  if (joined.length <= maxLen) return joined;
-  return `${joined.slice(0, Math.max(0, maxLen - 1)).trimEnd()}…`;
 }
 
 function airManufacturerLabel(job: Job): string {
@@ -60,11 +41,13 @@ export function jobFileStem(job: Job): string {
     const mans = airManufacturerLabel(job);
     mid = mans ? `(${mans}) Air Samples` : "Air Samples";
   } else if (job.sampleType === "raw") {
-    if (job.rawKind === "chicken") mid = "Raw Chicken";
-    else if (job.rawKind === "other") {
+    const kinds = rawKindsEn(job);
+    if (kinds === "Other") {
       const names = cookedNames(job);
       mid = names ? `Raw Other (${names})` : "Raw Other";
-    } else mid = "Raw Beef";
+    } else {
+      mid = `Raw ${kinds}`;
+    }
   } else {
     const names = cookedNames(job);
     mid = names ? `Cooked Foods (${names})` : "Cooked Foods";

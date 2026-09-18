@@ -79,6 +79,7 @@ export interface Sample {
   testDate: string;
   samplingCondition: SamplingCondition;
   samplingOther: string;
+  rawKind?: RawKind;
 }
 
 export interface Job {

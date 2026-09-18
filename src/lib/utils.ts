@@ -35,3 +35,35 @@ export function uid(): string {
   if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
   return `id_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
+
+export function fileSafe(value: string): string {
+  return value.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+export function uniqueJoin(values: string[], maxLen = 80, sep = " & "): string {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of values) {
+    const s = fileSafe(raw);
+    if (!s) continue;
+    const key = s.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(s);
+  }
+  const joined = out.join(sep);
+  if (joined.length <= maxLen) return joined;
+  return `${joined.slice(0, Math.max(0, maxLen - 1)).trimEnd()}…`;
+}
+
+export function jobSampleNames(
+  samples: Array<{ productDescription?: string; label?: string }>,
+  sep = " · ",
+  maxLen = 80,
+): string {
+  return uniqueJoin(
+    samples.map((s) => (s.productDescription || "").trim()),
+    maxLen,
+    sep,
+  );
+}
