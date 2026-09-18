@@ -1,7 +1,6 @@
 import { PDFDocument } from "pdf-lib";
-import { rawKindsEn } from "./presets";
 import { renderSampleCanvas } from "./render-form";
-import { formatMonthYear, todayIso, uniqueJoin } from "./utils";
+import { formatMonthYear, rawKindsEn, todayIso, uniqueJoin } from "./utils";
 import type { Job } from "./types";
 
 function canvasToPng(canvas: HTMLCanvasElement): Promise<Uint8Array> {

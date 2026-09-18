@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { RawKind, SampleType } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -66,4 +67,46 @@ export function jobSampleNames(
     maxLen,
     sep,
   );
+}
+
+const RAW_KIND_ORDER: RawKind[] = ["beef", "chicken", "other"];
+const RAW_KIND_EN: Record<RawKind, string> = { beef: "Beef", chicken: "Chicken", other: "Other" };
+const RAW_KIND_ZH: Record<RawKind, string> = { beef: "牛肉", chicken: "雞肉", other: "其他" };
+
+export function sampleRawKind(
+  sample: { rawKind?: RawKind },
+  job: { sampleType: SampleType; rawKind?: RawKind },
+): RawKind | undefined {
+  if (job.sampleType !== "raw") return undefined;
+  return sample.rawKind ?? job.rawKind ?? "beef";
+}
+
+export function jobRawKinds(job: {
+  sampleType: SampleType;
+  rawKind?: RawKind;
+  samples: Array<{ rawKind?: RawKind }>;
+}): RawKind[] {
+  if (job.sampleType !== "raw") return [];
+  const present = new Set(job.samples.map((s) => sampleRawKind(s, job)));
+  return RAW_KIND_ORDER.filter((k) => present.has(k));
+}
+
+export function rawKindsEn(job: {
+  sampleType: SampleType;
+  rawKind?: RawKind;
+  samples: Array<{ rawKind?: RawKind }>;
+}): string {
+  const kinds = jobRawKinds(job);
+  if (!kinds.length) return "Beef";
+  return kinds.map((k) => RAW_KIND_EN[k]).join(" & ");
+}
+
+export function rawKindsZh(job: {
+  sampleType: SampleType;
+  rawKind?: RawKind;
+  samples: Array<{ rawKind?: RawKind }>;
+}): string {
+  const kinds = jobRawKinds(job);
+  if (!kinds.length) return "牛肉";
+  return kinds.map((k) => RAW_KIND_ZH[k]).join(" & ");
 }
