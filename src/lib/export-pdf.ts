@@ -1,6 +1,6 @@
 import { PDFDocument } from "pdf-lib";
 import { renderSampleCanvas } from "./render-form";
-import { formatMonthYear, rawKindsEn, todayIso, uniqueJoin } from "./utils";
+import { formatFileDate, rawFileMid, todayIso, uniqueJoin } from "./utils";
 import type { Job } from "./types";
 
 function canvasToPng(canvas: HTMLCanvasElement): Promise<Uint8Array> {
@@ -28,27 +28,21 @@ function airManufacturerLabel(job: Job): string {
   return uniqueJoin(ordered);
 }
 
-function cookedNames(job: Job): string {
-  return uniqueJoin(job.samples.map((s) => s.productDescription));
-}
-
 export function jobFileStem(job: Job): string {
   const dateIso = job.samples[0]?.collectionDate || job.createdAt || todayIso();
-  const when = formatMonthYear(dateIso);
+  const when = formatFileDate(dateIso);
   let mid: string;
   if (job.sampleType === "air") {
     const mans = airManufacturerLabel(job);
     mid = mans ? `(${mans}) Air Samples` : "Air Samples";
   } else if (job.sampleType === "raw") {
-    const kinds = rawKindsEn(job);
-    if (kinds === "Other") {
-      const names = cookedNames(job);
-      mid = names ? `Raw Other (${names})` : "Raw Other";
-    } else {
-      mid = `Raw ${kinds}`;
-    }
+    mid = rawFileMid(job) || "Raw Beef";
   } else {
-    const names = cookedNames(job);
+    const names = uniqueJoin(
+      job.samples.map((s) => s.productDescription),
+      160,
+      ", ",
+    );
     mid = names ? `Cooked Foods (${names})` : "Cooked Foods";
   }
   return `SGS - Application Form - ${mid} - ${when}`;
